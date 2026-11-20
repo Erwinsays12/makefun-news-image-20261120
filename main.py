@@ -1,22 +1,26 @@
-#!/usr/bin/env python3
-"""Entry for make.fun news-image-20261120 (Python 3.13, standard library).
+"""news-image-20261120 entry: copy the rendered poster to the grader output.
 
-The poster image is drawn by draw_poster.py and shipped as entry.png
-beside this file. This program only copies it to the output directory
-the grader provides, so both runs produce byte-identical output.
+The poster itself is rendered by draw_poster.py into entry.png; this
+entrypoint only places that file where the grader expects it, so the two
+runs of the program write exactly the same bytes.
 
-Local run:
+Run it locally with:
     mkdir -p out && MAKEFUN_OUTPUT_DIR=out python3 main.py
 """
 
-import os
-import shutil
-import sys
-from pathlib import Path
+import os, shutil, sys
 
-HERE = Path(__file__).resolve().parent
-OUT = Path(os.environ.get("MAKEFUN_OUTPUT_DIR", "/output"))
 
-OUT.mkdir(parents=True, exist_ok=True)
-shutil.copyfile(HERE / "entry.png", OUT / "entry.png")
-print("wrote", OUT / "entry.png", file=sys.stderr)
+def main(argv):
+    target = os.environ.get("MAKEFUN_OUTPUT_DIR") or "/output"
+    os.makedirs(target, exist_ok=True)
+    here = os.path.dirname(os.path.abspath(__file__))
+    source = os.path.join(here, "entry.png")
+    destination = os.path.join(target, "entry.png")
+    shutil.copyfile(source, destination)
+    print("poster copied to " + destination, file=sys.stderr)
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main(sys.argv[1:]))
